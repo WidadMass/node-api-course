@@ -62,45 +62,46 @@ evaluations/
 
 ### Critères de notation
 
-#### Section 1 — Inscription et connexion `/5 pts`
+#### Section 1 — Inscription et connexion `/4 pts`
 
 | Critère | Points |
 |---|---|
-| `POST /api/auth/register` crée un utilisateur et retourne `201` | 1 pt |
-| Le mot de passe est haché avec `bcrypt` (rounds ≥ 10) **avant** insertion en base | 2 pts |
+| `POST /api/auth/register` crée un utilisateur avec Prisma et retourne `201` | 1 pt |
+| Le mot de passe est haché avec `bcryptjs` (rounds ≥ 10) **avant** insertion en base | 1 pt |
 | `POST /api/auth/login` vérifie les identifiants et retourne un token JWT | 1 pt |
 | En cas de mauvais identifiants, la réponse est `401` avec **le même message** pour email inconnu et mauvais mot de passe | 1 pt |
 
 ---
 
-#### Section 2 — Middleware d'authentification JWT `/5 pts`
+#### Section 2 — Middleware d'authentification JWT `/4 pts`
 
 | Critère | Points |
 |---|---|
 | Le middleware `authenticate` extrait le token du header `Authorization: Bearer <token>` | 1 pt |
-| Le token est vérifié avec `jwt.verify()` et le secret depuis `.env` | 2 pts |
+| Le token est vérifié avec `jwt.verify()` et le secret depuis `.env` | 1 pt |
 | Un token expiré ou invalide retourne `401` avec un message explicite | 1 pt |
 | Le payload décodé est attaché à `req.user` pour les routes suivantes | 1 pt |
 
 ---
 
-#### Section 3 — Autorisation par rôle `/4 pts`
+#### Section 3 — Autorisation par rôle `/3 pts`
 
 | Critère | Points |
 |---|---|
-| Un middleware `authorize(...roles)` vérifie `req.user.role` | 2 pts |
+| Un middleware `authorize(...roles)` vérifie `req.user.role` | 1 pt |
 | `DELETE /api/livres/:id` est accessible uniquement aux `admin` (retourne `403` sinon) | 1 pt |
 | `POST /api/livres` exige d'être authentifié (retourne `401` si pas de token) | 1 pt |
 
 ---
 
-#### Section 4 — Sécurité applicative `/4 pts`
+#### Section 4 — Sécurité applicative `/5 pts`
 
 | Critère | Points |
 |---|---|
 | `helmet` est configuré dans `app.js` | 1 pt |
 | Un rate limiter est appliqué sur la route `POST /api/auth/login` | 1 pt |
 | `express.json()` est configuré avec une limite de taille (ex: `{ limit: '10kb' }`) | 1 pt |
+| CORS configuré avec `cors()` — mode permissif en dev ou whitelist en prod | 1 pt |
 | Un fichier `.env.example` documente toutes les variables d'environnement nécessaires (`PORT`, `JWT_SECRET`, `DATABASE_URL`, etc.) | 1 pt |
 
 ---
@@ -114,10 +115,18 @@ evaluations/
 
 ---
 
+#### Section 6 — Documentation Swagger/OpenAPI `/2 pts`
+
+| Critère | Points |
+|---|---|
+| `swagger-jsdoc` + `swagger-ui-express` configurés, interface accessible sur `GET /api-docs` | 1 pt |
+| Au moins 2 routes documentées avec annotations JSDoc (`@swagger`) incluant paramètres et réponses | 1 pt |
+
+---
+
 ### Bonus (hors barème)
 
 - Implémenter un système de refresh token
-- Ajouter la documentation Swagger/OpenAPI sur `/api-docs`
 - Implémenter `PATCH /api/livres/:id/disponibilite` pour emprunter/retourner un livre
 - Déployer l'API sur Railway ou Render et fournir l'URL publique
 
