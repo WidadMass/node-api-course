@@ -1,6 +1,6 @@
 const authService = require('../services/auth.service');
 
-const register = async (req, res, next) => {
+const handleRegister = async (req, res, next) => {
   try {
     const result = await authService.register(req.body);
     res.status(201).json(result);
@@ -9,7 +9,7 @@ const register = async (req, res, next) => {
   }
 };
 
-const login = async (req, res, next) => {
+const handleLogin = async (req, res, next) => {
   try {
     const result = await authService.login(req.body);
     res.json(result);
@@ -18,7 +18,7 @@ const login = async (req, res, next) => {
   }
 };
 
-const me = async (req, res, next) => {
+const handleGetProfile = async (req, res, next) => {
   try {
     const user = await authService.getProfile(req.user.id);
     res.json(user);
@@ -27,4 +27,4 @@ const me = async (req, res, next) => {
   }
 };
 
-module.exports = { register, login, me };
+module.exports = { handleRegister, handleLogin, handleGetProfile };

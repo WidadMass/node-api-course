@@ -5,8 +5,8 @@ const { validate, registerSchema, loginSchema } = require('../validators/auth.va
 
 const router = Router();
 
-router.post('/register', validate(registerSchema), authController.register);
-router.post('/login', validate(loginSchema), authController.login);
-router.get('/me', authenticate, authController.me);
+router.post('/register', validate(registerSchema), authController.handleRegister);
+router.post('/login', validate(loginSchema), authController.handleLogin);
+router.get('/me', authenticate, authController.handleGetProfile);
 
 module.exports = router;
