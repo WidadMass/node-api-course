@@ -1,10 +1,12 @@
 const authService = require('../services/authService');
 const env = require('../config/env');
 
+const isProd = env.nodeEnv === 'production';
+
 const COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: env.nodeEnv === 'production',
-  sameSite: 'strict',
+  secure: isProd,
+  sameSite: isProd ? 'none' : 'strict',
   maxAge: 7 * 24 * 60 * 60 * 1000  // 7 jours
 };
 

@@ -1,4 +1,5 @@
-const API = '/api';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+const API = `${API_BASE}/api`;
 
 // Token stocké en mémoire (plus sécurisé que localStorage)
 let accessToken = null;
