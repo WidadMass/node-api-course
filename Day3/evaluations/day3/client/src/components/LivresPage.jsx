@@ -5,18 +5,19 @@ export default function LivresPage({ user, onToast }) {
   const [livresList, setLivres] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editLivre, setEditLivre] = useState(null);
+  const [filters, setFilters] = useState({ sortBy: 'id', order: 'asc', disponible: '', search: '' });
   const [form, setForm] = useState({ titre: '', auteur: '', annee: '', genre: '' });
 
   const load = async () => {
     try {
-      const data = await api.getAll();
+      const data = await api.getAll(filters);
       setLivres(data);
     } catch (err) {
       onToast(err.message, 'error');
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [filters.sortBy, filters.order, filters.disponible, filters.search]);
 
   const openCreate = () => {
     setEditLivre(null);
@@ -88,12 +89,40 @@ export default function LivresPage({ user, onToast }) {
   };
 
   const set = (key) => (e) => setForm({ ...form, [key]: e.target.value });
+  const setFilter = (key) => (e) => setFilters({ ...filters, [key]: e.target.value });
 
   return (
     <>
       <div className="toolbar">
         <h2>Livres ({livresList.length})</h2>
-        <button className="btn-primary" onClick={openCreate}>+ Ajouter</button>
+        {user.role === 'admin' && (
+          <button className="btn-primary" onClick={openCreate}>+ Ajouter</button>
+        )}
+      </div>
+
+      <div className="filters-bar">
+        <input
+          className="filter-input"
+          placeholder="Rechercher un titre, auteur, genre..."
+          value={filters.search}
+          onChange={setFilter('search')}
+        />
+        <select className="filter-select" value={filters.sortBy} onChange={setFilter('sortBy')}>
+          <option value="id">Trier par id</option>
+          <option value="titre">Titre</option>
+          <option value="auteur">Auteur</option>
+          <option value="annee">Année</option>
+          <option value="createdAt">Date d'ajout</option>
+        </select>
+        <select className="filter-select" value={filters.order} onChange={setFilter('order')}>
+          <option value="asc">Croissant</option>
+          <option value="desc">Décroissant</option>
+        </select>
+        <select className="filter-select" value={filters.disponible} onChange={setFilter('disponible')}>
+          <option value="">Tous</option>
+          <option value="true">Disponibles</option>
+          <option value="false">Empruntés</option>
+        </select>
       </div>
 
       <div className="livres-grid">
@@ -118,13 +147,15 @@ export default function LivresPage({ user, onToast }) {
                   Retourner
                 </button>
               )}
-              <button className="btn-outline btn-sm" onClick={() => openEdit(livre)}>
-                Modifier
-              </button>
               {user.role === 'admin' && (
-                <button className="btn-danger btn-sm" onClick={() => handleDelete(livre.id)}>
-                  Supprimer
-                </button>
+                <>
+                  <button className="btn-outline btn-sm" onClick={() => openEdit(livre)}>
+                    Modifier
+                  </button>
+                  <button className="btn-danger btn-sm" onClick={() => handleDelete(livre.id)}>
+                    Supprimer
+                  </button>
+                </>
               )}
             </div>
           </div>

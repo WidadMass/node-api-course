@@ -2,7 +2,14 @@ const livreService = require('../services/livreService');
 
 const handleGetAll = async (req, res, next) => {
   try {
-    const livres = await livreService.getAll();
+    const { sortBy, order, disponible, genre, search } = req.query;
+    const livres = await livreService.getAll({
+      sortBy,
+      order,
+      disponible: disponible === undefined ? undefined : disponible === 'true',
+      genre,
+      search
+    });
     res.json(livres);
   } catch (err) {
     next(err);
@@ -58,7 +65,7 @@ const handleEmprunter = async (req, res, next) => {
 
 const handleRetourner = async (req, res, next) => {
   try {
-    const emprunt = await livreService.retourner(Number(req.params.id), req.user.id);
+    const emprunt = await livreService.retourner(Number(req.params.id), req.user.id, req.user.role);
     res.json(emprunt);
   } catch (err) {
     next(err);

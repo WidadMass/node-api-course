@@ -1,7 +1,41 @@
 const prisma = require('../db/prisma');
 
-const getAll = async () => {
-  return prisma.livre.findMany({ orderBy: { id: 'asc' } });
+const SORT_FIELDS = ['id', 'titre', 'auteur', 'annee', 'createdAt'];
+
+const getAll = async (filters = {}) => {
+  const {
+    sortBy = 'id',
+    order = 'asc',
+    disponible,
+    genre,
+    search
+  } = filters;
+
+  const where = {};
+
+  if (disponible !== undefined) {
+    where.disponible = disponible;
+  }
+
+  if (genre) {
+    where.genre = { contains: genre };
+  }
+
+  if (search) {
+    where.OR = [
+      { titre: { contains: search } },
+      { auteur: { contains: search } },
+      { genre: { contains: search } }
+    ];
+  }
+
+  const safeSortBy = SORT_FIELDS.includes(sortBy) ? sortBy : 'id';
+  const safeOrder = order === 'desc' ? 'desc' : 'asc';
+
+  return prisma.livre.findMany({
+    where,
+    orderBy: { [safeSortBy]: safeOrder }
+  });
 };
 
 const getById = async (id) => {
@@ -59,7 +93,7 @@ const emprunter = async (livreId, userId) => {
   });
 };
 
-const retourner = async (livreId, userId) => {
+const retourner = async (livreId, userId, userRole) => {
   return prisma.$transaction(async (tx) => {
     const emprunt = await tx.emprunt.findFirst({
       where: { livreId, dateRetour: null }
@@ -67,6 +101,12 @@ const retourner = async (livreId, userId) => {
     if (!emprunt) {
       const err = new Error('Aucun emprunt actif trouvé');
       err.status = 404;
+      throw err;
+    }
+
+    if (emprunt.userId !== userId && userRole !== 'admin') {
+      const err = new Error('Vous ne pouvez retourner que vos propres emprunts');
+      err.status = 403;
       throw err;
     }
 

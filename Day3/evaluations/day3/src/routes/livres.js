@@ -13,6 +13,29 @@ const router = Router();
  *   get:
  *     summary: Liste de tous les livres
  *     tags: [Livres]
+ *     parameters:
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           enum: [id, titre, auteur, annee, createdAt]
+ *       - in: query
+ *         name: order
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *       - in: query
+ *         name: disponible
+ *         schema:
+ *           type: boolean
+ *       - in: query
+ *         name: genre
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
  *         description: Liste des livres
@@ -43,7 +66,7 @@ router.get('/:id', ctrl.handleGetById);
  * @swagger
  * /api/livres:
  *   post:
- *     summary: Ajouter un livre (authentifié)
+ *     summary: Ajouter un livre (admin)
  *     tags: [Livres]
  *     security:
  *       - bearerAuth: []
@@ -68,14 +91,16 @@ router.get('/:id', ctrl.handleGetById);
  *         description: Livre créé
  *       401:
  *         description: Non authentifié
+ *       403:
+ *         description: Admin requis
  */
-router.post('/', authenticate, validate(livreCreateSchema), ctrl.handleCreate);
+router.post('/', authenticate, authorize('admin'), validate(livreCreateSchema), ctrl.handleCreate);
 
 /**
  * @swagger
  * /api/livres/{id}:
  *   put:
- *     summary: Modifier un livre (authentifié)
+ *     summary: Modifier un livre (admin)
  *     tags: [Livres]
  *     security:
  *       - bearerAuth: []
@@ -90,10 +115,12 @@ router.post('/', authenticate, validate(livreCreateSchema), ctrl.handleCreate);
  *         description: Livre modifié
  *       401:
  *         description: Non authentifié
+ *       403:
+ *         description: Admin requis
  *       404:
  *         description: Livre non trouvé
  */
-router.put('/:id', authenticate, validate(livreUpdateSchema), ctrl.handleUpdate);
+router.put('/:id', authenticate, authorize('admin'), validate(livreUpdateSchema), ctrl.handleUpdate);
 
 /**
  * @swagger
@@ -162,6 +189,8 @@ router.post('/:id/emprunter', authenticate, ctrl.handleEmprunter);
  *         description: Livre retourné
  *       401:
  *         description: Non authentifié
+ *       403:
+ *         description: Retour autorisé uniquement pour l'emprunteur ou un admin
  *       404:
  *         description: Aucun emprunt actif
  */

@@ -10,6 +10,7 @@ const env = require('./config/env');
 const swaggerSpec = require('./docs/swagger');
 const authRoutes = require('./routes/auth');
 const livresRoutes = require('./routes/livres');
+const usersRoutes = require('./routes/users');
 const { notFound, errorHandler } = require('./middlewares/errorHandler');
 
 const app = express();
@@ -54,6 +55,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/livres', livresRoutes);
+app.use('/api/users', usersRoutes);
 
 // Erreurs
 app.use(notFound);

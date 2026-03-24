@@ -86,8 +86,19 @@ export const auth = {
 };
 
 export const livres = {
-  getAll: () =>
-    fetch(`${API}/livres`, { credentials: 'include' }).then(handleResponse),
+  getAll: (params = {}) => {
+    const query = new URLSearchParams();
+
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        query.set(key, value);
+      }
+    });
+
+    const suffix = query.toString() ? `?${query.toString()}` : '';
+
+    return fetch(`${API}/livres${suffix}`, { credentials: 'include' }).then(handleResponse);
+  },
 
   getById: (id) =>
     fetch(`${API}/livres/${id}`, { credentials: 'include' }).then(handleResponse),
