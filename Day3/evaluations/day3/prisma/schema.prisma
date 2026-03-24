@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int            @id @default(autoincrement())
+  nom           String
+  email         String         @unique
+  password      String
+  role          String         @default("user")
+  emprunts      Emprunt[]
+  refreshTokens RefreshToken[]
+  createdAt     DateTime       @default(now())
+}
+
+model Livre {
+  id         Int       @id @default(autoincrement())
+  titre      String
+  auteur     String
+  annee      Int?
+  genre      String?
+  disponible Boolean   @default(true)
+  emprunts   Emprunt[]
+  createdAt  DateTime  @default(now())
+}
+
+model Emprunt {
+  id         Int       @id @default(autoincrement())
+  userId     Int
+  livreId    Int
+  dateEmprunt DateTime @default(now())
+  dateRetour  DateTime?
+  user       User      @relation(fields: [userId], references: [id])
+  livre      Livre     @relation(fields: [livreId], references: [id])
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
